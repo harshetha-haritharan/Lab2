@@ -1,0 +1,157 @@
+---
+title: "Project 1"
+author: "Harshetha Haritharan"
+date: "2024-09-23"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 2
+    toc_float: TRUE
+    code_folding: hide
+---
+
+```{r setup, include=FALSE}
+# knitr::opts_chunk$set(warning = FALSE, message = FALSE, include = FALSE)
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+setwd('C:/Users/harsh/Desktop/8.29 dataset/project1')
+```
+
+```{r, echo=FALSE}
+Project1_PrideIndex <- read.csv('Project1_PrideIndex.csv')
+```
+## 1. Introduction
+The dataset being analyzed is collected from [Campus Pride Index](https://campusprideindex.org/), an online reference that allows for students and families to research how LGBTQ-friendly a campus is. It is a national benchmarking tool used by colleges and universities nationwide that allows them to create a more inclusive and accepting environment for their students. According to the [The Postsecondary National Policy Institute](https://pnpi.org/factsheets/lgbtq-students-in-higher-education/#:~:text=In%20a%202020%20survey%20from,asexual%2C%20queer%2C%20or%20questioning.), 17% of undergraduate students surveyed by the Association of American Universities (AAU) identify as LGBTQ+, so resources like the Campus Pride Index are useful for these students and their families.The data for this index is collected when campus officials fill out an assessment consisting of 50+ self-assessment questions, each of which align with eight different LGBTQ-friendly factors. The data collected from these self-assessments include campus name, location, number of students, community type, and campus type. They also collect data regarding if the campus is a research, community, liberal arts, or community college. By analyzing these factors, each campus is given an overall rating out of 5. My outcome variable, the variable that is being measured, is the rating each college receives, with 1 being the lowest and 5 being the highest. The predictor variables I will be investigating are whether the campus is religious or not, the number of students, and if the campus is a liberal arts campus or not. 
+
+
+<center> 
+<p style="font-size: 18px; color: red;">Students and faculty members at Pennsylvania State University celebrating at their campus pride rally.</p>
+</center>
+
+<center>
+![PStaff, INSIGHT. Pennsylvania State University pride rally. 17 May 2022. Insight into Diversity, Onward State, https://www.insightintodiversity.com/campuses-resume-in-person-pride-events-following-pandemic-hiatus/. Accessed 25 Sept. 2024. ](prideimage.png "Pride Image")
+</center>
+
+
+
+## 2. Outcome Variable
+
+```{r, echo=FALSE}
+library(ggplot2)
+pride_ggplot <- ggplot(Project1_PrideIndex)
+pride_ggplot + geom_histogram(aes(x=rating),col='black',fill='lavender', bins = 7) + labs(title='Frequency of LGBTQ-Inclusivity Ratings of Colleges', x='College Rating',y='Frequency') 
+```
+ 
+```{r, echo=FALSE}
+median <- round(median(Project1_PrideIndex$rating, na.rm = TRUE),2)
+first <- round(quantile(Project1_PrideIndex$rating, na.rm = TRUE)[["25%"]],2)
+third <- round(quantile(Project1_PrideIndex$rating, na.rm = TRUE)[["75%"]],2)
+IQR <- round(IQR(Project1_PrideIndex$rating, na.rm = TRUE),2)
+```
+The graph is indicates that there is a higher frequency of colleges having higher ratings and this can be seen as the graph is <p style="font-size: 14px; color: red;">skewed to the left.</p> `r first` is the first quartile value (25%), `r median` is the median value (50%), and `r third` is the third quartile value (75%). The IQR of the graph is `r IQR`.
+ 
+ 
+## 3. Bivariate Analyses
+```{r, echo=FALSE}
+library(ggplot2)
+pride_ggplot <- ggplot(Project1_PrideIndex)
+pride_ggplot + geom_point(aes(x=students, y=rating), bins = 30) + labs(title='Number of Students at College vs Rating of College', x='Number of Students',y='College Rating (1.0-5.0)') 
+```
+
+```{r, echo=FALSE}
+cc <- round(cor(Project1_PrideIndex$students,Project1_PrideIndex$rating, use="complete.obs"),2)
+```
+The relationship between the number of students at a college and its rating on the Campus Pride Index has a correlation coefficient is `r cc` so it is moderately positive. This value indicates that both variables tend to move in the same positive direction, establishing a moderate relationship between the two variables. 
+
+```{r, echo=FALSE, include=FALSE}
+small <- Project1_PrideIndex[Project1_PrideIndex$students<="25000",]
+large <- Project1_PrideIndex[Project1_PrideIndex$students> "25000",]
+
+round(cor(small$students,small$rating, use="complete.obs"),2)
+round(cor(large$students,large$rating, use="complete.obs"),2)
+```
+
+If subsetted into small colleges (less than or equal to 25,000 students) and large colleges (greater than 25,000 students), the correlation coefficient between number of students and rating is different for each subset. For small colleges, the correlation coefficient is 0.35, so the relationship is weak. For large colleges, the correlation coefficient is 0.47, so the relationship is moderately strong. The correlation coefficient of 0.47 is also larger than the original correlation coefficient calculated among both small and large colleges together, which was 0.4. 
+
+```{r, echo=FALSE}
+Project1_PrideIndex$RatingType[Project1_PrideIndex$rating>="3.5"] <- "High Rating"
+Project1_PrideIndex$goodschools[Project1_PrideIndex$rating<"3.5"] <- "Low Rating"
+
+```
+I created a new variable called rating type so colleges with a rating of at least 3.5 are highly rated colleges and colleges with less than a 3.5 rating are low rated colleges. There are 188 highly rated colleges and there are 50 colleges that are lowly rated. 
+
+
+```{r, echo=FALSE}
+pride_ggplot + geom_histogram(aes(x=rating),col='black',fill='dark blue', bins = 7) + labs(title='Frequency of Rating for Non-Religious and Religious Colleges ', x='Rating (1.0-5.0)',y='Frequency') + theme(legend.position='bottom') + scale_fill_brewer(type='qual',palette=2) + facet_wrap(~religious)
+```
+
+```{r, echo=FALSE}
+no <- Project1_PrideIndex[Project1_PrideIndex$religious== "no",]
+yes <- Project1_PrideIndex[Project1_PrideIndex$religious== "yes",]
+
+medianNR<- round(median(no$rating, na.rm = TRUE),2)
+firstNR <- round(quantile(no$rating, na.rm = TRUE)[["25%"]],2)
+thirdNR <- round(quantile(no$rating, na.rm = TRUE)[["75%"]],2)
+IQRNR <- round(IQR(no$rating, na.rm = TRUE),2)
+
+medianR<- round(median(yes$rating, na.rm = TRUE),2)
+firstR <- round(quantile(yes$rating, na.rm = TRUE)[["25%"]],2)
+thirdR <- round(quantile(yes$rating, na.rm = TRUE)[["75%"]],2)
+IQRR <- round(IQR(yes$rating, na.rm = TRUE),2)
+```
+
+In this graph, no represents non-religious colleges and yes represents religious colleges. 
+
+The non-religious colleges have higher frequency of higher ratings because the graph is <p style="font-size: 14px; color: red;">skewed to the left.</p> `r first` is the first quartile value (25%), `r median` is the median value (50%), and `r third` is the third quartile value (75%). The IQR of the graph is `r IQR`. 
+
+The religious colleges graph have very low frequency of ratings overall and it is also <p style="font-size: 14px; color: red;">very slightly skewed to the left.</p> `r firstR` is the first quartile value (25%), `r medianR` is the median value (50%), and `r thirdR` is the third quartile value (75%). The IQR of the graph is `r IQRR`. 
+
+The median for non-religious and religious colleges is the same, 4, but the IQR for the religious colleges is higher by 0.5. 
+
+According to [Inside Higher Ed](https://www.insidehighered.com/news/2021/03/15/survey-finds-lgbtq-students-attending-religious-colleges-struggle-belonging), non-religious colleges have a higher frequency of higher ratings because LGBTQ+ students more likely to feel like they do not belong to their campus community if they go to a religious college. They are also more likely to experience disciplinary action from their institutions themselves if they go to a religious school. 
+
+```{r, echo=FALSE}
+pride_ggplot + geom_histogram(aes(x=rating),col='black',fill='pink', bins = 7) + labs(title='Frequency of Rating for Liberal Arts and Non-Liberal Arts Colleges ', x='Rating (1.0-5.0)',y='Frequency') + theme(legend.position='bottom') + scale_fill_brewer(type='qual',palette=2) + facet_wrap(~liberal_arts)
+```
+```{r, echo=FALSE}
+noLA <- Project1_PrideIndex[Project1_PrideIndex$liberal_arts== "no",]
+yesLA <- Project1_PrideIndex[Project1_PrideIndex$liberal_arts== "yes",]
+
+medianNLA<- round(median(noLA$rating, na.rm = TRUE),2)
+firstNLA <- round(quantile(noLA$rating, na.rm = TRUE)[["25%"]],2)
+thirdNLA <- round(quantile(noLA$rating, na.rm = TRUE)[["75%"]],2)
+IQRNLA <- round(IQR(noLA$rating, na.rm = TRUE),2)
+
+medianLA<- round(median(yesLA$rating, na.rm = TRUE),2)
+firstLA <- round(quantile(yesLA$rating, na.rm = TRUE)[["25%"]],2)
+thirdLA <- round(quantile(yesLA$rating, na.rm = TRUE)[["75%"]],2)
+IQRLA <- round(IQR(yesLA$rating, na.rm = TRUE),2)
+```
+
+In this graph, no represents non-liberal arts colleges and yes represents liberal arts colleges. 
+
+The non-liberal arts colleges graph have a higher frequency of higher ratings because the graph is <p style="font-size: 14px; color: red;">skewed to the left.</p> `r firstNLA` is the first quartile value (25%), `r medianNLA` is the median value (50%), and `r thirdNLA` is the third quartile value (75%). The IQR of the graph is `r IQRNLA`. 
+
+The liberal arts colleges  have low frequency of ratings overall and also the graph is <p style="font-size: 14px; color: red;"> slightly skewed to the left.</p>  `r firstLA` is the first quartile value (25%), `r medianLA` is the median value (50%), and `r thirdLA` is the third quartile value (75%). The IQR of the graph is `r IQRLA`. 
+
+The median, first quartile, third quartile and IQR rating values are the same for non-liberal arts colleges and liberal arts colleges, but non-liberal arts colleges have higher frequencies for all ratings. 
+
+
+## 4. Choice Elements
+
+I used in-line code when I stated the descriptive statistics values when describing each of the graphs (under the graphs). This is seen when I stated the correlation coefficients, medians, first-quartile values, third-quartile values, and the interquartile ranges (IQRs). I included three hyperlinks including two in the introduction (one for Campus Pride Index and one for The Postsecondary National Policy Institute) and one for Inside Higher Ed to support my non-religious vs religious college analysis. I changed the font size and color to describe what was being depicted in the image in the introduction. I also changed the color of the words that described the graphs' skewness to highlight their importance to my analyses. I included floating table of contents on the upper left side of my HTML to allow easy navigation across the different sections. Under the scatter plot for the Number of Students at College vs Rating of College for Question 3, I created subsets for small colleges and large colleges (based on number of students) and calculated the correlation coefficient for the relationship between number of students and rating for each of the subsets. Also under Question 3, beneath my subsets, I created a variable called Rating Type to separate the colleges into high and low rated colleges and I analyzed how many high rated colleges and low rated colleges there are. 
+
+## 5. Conclusion
+By analyzing the relationship between my outcome variable (the rating) and my predictor variables (number of students, religious or non-religious, and liberal art or non-liberal arts), there are multiple analyses that can be made. There is a moderately positive relationship between the number of students and ratings, so both variables move in a positive direction together, but not in a strong manner. When comparing religious and non-religious colleges, the higher ratings have higher frequencies with non-religious colleges. However, religious colleges have a higher IRQ by 0.5, meaning that the central portion of the data is spread out more. Between liberal arts and non-liberal arts colleges, non-liberal arts colleges have higher frequencies of high ratings, but both college types have the same median and IQR values. 
+
+For future research, other variables I could analyze include campus location, community type, whether the college is a research school or not, and whether the college is a community college or not. Other variables that could be analyzed that are not currently in the index include if there are discrimination policies or not, if there is funding for LGBTQ groups on campus or not, and if there are LGBTQ education programs taught or not. 
+
+
+## References
+
+“Campus Pride Index.” Campus Pride, 18 Dec. 2023, campusprideindex.org/. 
+
+“LGBTQ Students in Higher Education.” PNPI, pnpi.org/factsheets/lgbtq-students-in-higher-education/#:~:text=In%20a%202020%20survey%20from,asexual%2C%20queer%2C%20or%20questioning. Accessed 26 Sept. 2024. 
+
+Redden, Elizabeth. “Survey Finds LGBTQ+ Students Attending Religious Colleges Struggle with Belonging.” Inside Higher Ed | Higher Education News, Events and Jobs, www.insidehighered.com/news/2021/03/15/survey-finds-lgbtq-students-attending-religious-colleges-struggle-belonging. Accessed 25 Sept. 2024. 
+
+Staff, INSIGHT. “Campuses Resume In-Person Pride Events Following Pandemic Hiatus.” Insight Into Diversity, 27 June 2022, www.insightintodiversity.com/campuses-resume-in-person-pride-events-following-pandemic-hiatus/. 
