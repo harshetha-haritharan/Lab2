@@ -16,6 +16,11 @@ knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 setwd('C:/Users/harsh/Desktop/8.29 dataset/project1')
 ```
 
+### Import Libraries
+```{r, echo = FALSE}
+library(ggplot2)
+```
+
 ```{r, echo=FALSE}
 Project1_PrideIndex <- read.csv('Project1_PrideIndex.csv')
 ```
@@ -36,7 +41,6 @@ The dataset being analyzed is collected from [Campus Pride Index](https://campus
 ## 2. Outcome Variable
 
 ```{r, echo=FALSE}
-library(ggplot2)
 pride_ggplot <- ggplot(Project1_PrideIndex)
 pride_ggplot + geom_histogram(aes(x=rating),col='black',fill='lavender', bins = 7) + labs(title='Frequency of LGBTQ-Inclusivity Ratings of Colleges', x='College Rating',y='Frequency') 
 ```
@@ -52,7 +56,6 @@ The graph is indicates that there is a higher frequency of colleges having highe
  
 ## 3. Bivariate Analyses
 ```{r, echo=FALSE}
-library(ggplot2)
 pride_ggplot <- ggplot(Project1_PrideIndex)
 pride_ggplot + geom_point(aes(x=students, y=rating), bins = 30) + labs(title='Number of Students at College vs Rating of College', x='Number of Students',y='College Rating (1.0-5.0)') 
 ```
